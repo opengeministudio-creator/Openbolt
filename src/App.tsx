@@ -22,6 +22,7 @@ function App() {
   const [apiKey, setApiKey] = useState('');
   const [showSettings, setShowSettings] = useState(false);
   const [previewKey, setPreviewKey] = useState(0);
+  const [activeTab, setActiveTab] = useState<'preview' | 'files'>('preview');
 
   useEffect(() => {
     initializeProject();
@@ -193,7 +194,7 @@ function App() {
       </header>
 
       <div className="flex-1 flex overflow-hidden">
-        <div className="w-80 border-r border-gray-200">
+        <div className="w-80 border-r border-gray-200 flex flex-col">
           <ChatPanel
             messages={project.messages}
             onSendMessage={handleSendMessage}
@@ -201,20 +202,49 @@ function App() {
           />
         </div>
 
-        <div className="w-64 border-r border-gray-200">
-          <FileTree
-            files={project.files}
-            selectedFileId={selectedFile?.id || null}
-            onSelectFile={handleSelectFile}
-          />
-        </div>
-
-        <div className="flex-1 flex">
-          <div className="flex-1">
-            <CodeEditor file={selectedFile} onContentChange={handleContentChange} />
+        <div className="flex-1 flex flex-col">
+          <div className="flex border-b border-gray-200 bg-white">
+            <button
+              onClick={() => setActiveTab('preview')}
+              className={`flex-1 px-4 py-3 font-medium text-sm transition-colors ${
+                activeTab === 'preview'
+                  ? 'text-blue-600 border-b-2 border-blue-600'
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
+            >
+              Preview
+            </button>
+            <button
+              onClick={() => setActiveTab('files')}
+              className={`flex-1 px-4 py-3 font-medium text-sm transition-colors ${
+                activeTab === 'files'
+                  ? 'text-blue-600 border-b-2 border-blue-600'
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
+            >
+              Files
+            </button>
           </div>
-          <div className="flex-1 border-l border-gray-200">
-            <Preview key={previewKey} files={project.files} onRefresh={() => setPreviewKey((k) => k + 1)} />
+
+          <div className="flex-1 overflow-hidden">
+            {activeTab === 'preview' ? (
+              <div className="h-full flex">
+                <div className="flex-1">
+                  <CodeEditor file={selectedFile} onContentChange={handleContentChange} />
+                </div>
+                <div className="flex-1 border-l border-gray-200">
+                  <Preview key={previewKey} files={project.files} onRefresh={() => setPreviewKey((k) => k + 1)} />
+                </div>
+              </div>
+            ) : (
+              <div className="h-full">
+                <FileTree
+                  files={project.files}
+                  selectedFileId={selectedFile?.id || null}
+                  onSelectFile={handleSelectFile}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
